@@ -1,0 +1,82 @@
+DEBUT(LANG='FR')
+
+
+mesh = LIRE_MAILLAGE(FORMAT='MED',
+                     UNITE=20)
+
+model = AFFE_MODELE(AFFE=_F(MODELISATION='3D',
+                            PHENOMENE='MECANIQUE',
+                            TOUT='OUI'),
+                    MAILLAGE=mesh)
+
+# Room temperature
+# E = DEFI_CONSTANTE(VALE=185000)
+# v = DEFI_CONSTANTE(VALE=0.33)
+# SIGMAy = DEFI_CONSTANTE(VALE=82.0)
+# b = DEFI_CONSTANTE(VALE=8.0)
+# Q = DEFI_CONSTANTE(VALE=60.8)
+# a1 = DEFI_CONSTANTE(VALE=58)
+# c1 = DEFI_CONSTANTE(VALE=2800.0)
+# a2 = DEFI_CONSTANTE(VALE=270.8)
+# c2 = DEFI_CONSTANTE(VALE=25)
+# K = DEFI_CONSTANTE(VALE=151.0)
+# n = DEFI_CONSTANTE(VALE=24.0)
+# 550º
+E = DEFI_CONSTANTE(VALE=141260)
+
+v = DEFI_CONSTANTE(VALE=0.33)
+
+SIGMAy = DEFI_CONSTANTE(VALE=31.0)
+
+b = DEFI_CONSTANTE(VALE=31.0)
+
+Q = DEFI_CONSTANTE(VALE=27.8)
+
+a1 = DEFI_CONSTANTE(VALE=86.3)
+
+c1 = DEFI_CONSTANTE(VALE=6939.0)
+
+a2 = DEFI_CONSTANTE(VALE=114.8)
+
+c2 = DEFI_CONSTANTE(VALE=957.69)
+
+K = DEFI_CONSTANTE(VALE=173.0)
+
+n = DEFI_CONSTANTE(VALE=10.0)
+
+DIN14550 = DEFI_MATERIAU(ELAS_FO=_F(E=E,
+                                    NU=v),
+                         UMAT_FO=_F(LISTE_COEF=(E, v, SIGMAy, c1, c2, a1, a2, b, Q, K, n)))
+
+fieldmat = AFFE_MATERIAU(AFFE=_F(MATER=(DIN14550, ),
+                                 TOUT='OUI'),
+                         MODELE=model)
+
+listr = DEFI_LIST_REEL(DEBUT=0.0,
+                       INTERVALLE=_F(JUSQU_A=49,
+                                     NOMBRE=1000))
+
+times = DEFI_LIST_INST(ADAPTATION=_F(EVENEMENT='SEUIL'),
+                       DEFI_LIST=_F(LIST_INST=listr),
+                       INFO=1,
+                       METHODE='AUTO')
+
+DESPL = AFFE_CHAR_MECA(DDL_IMPO=_F(DZ=0.003,
+                                   GROUP_NO=('NODE_SUP', )),
+                       MODELE=model)
+
+BLOCK = AFFE_CHAR_MECA(DDL_IMPO=_F(DZ=0.0,
+                                   GROUP_NO=('Group_bc', )),
+                       MODELE=model)
+
+fijo = AFFE_CHAR_MECA(DDL_IMPO=(_F(DX=0.0,
+                                   GROUP_NO=('NODO1_b', 'NODO2_b')),
+                                _F(DY=0.0,
+                                   GROUP_NO=('NODO1_b', 'Nodo3_b')),
+                                _F(DZ=0.0,
+                                   GROUP_NO=('NODO1_b', 'NODO2_b', 'Nodo3_b', 'Nodo4_b')),
+                                _F(DZ=0.0,
+                                   GROUP_NO=('Group_node', ))),
+                      MODELE=model)
+
+FIN()

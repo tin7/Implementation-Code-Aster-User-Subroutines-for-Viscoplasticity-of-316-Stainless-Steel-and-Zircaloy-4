@@ -1,0 +1,54 @@
+POURSUITE(LANG='FR')
+
+
+L2_INST = DEFI_LIST_REEL(DEBUT=0,
+                         INTERVALLE=_F(JUSQU_A=200000,
+                                       NOMBRE=40))
+
+AM_LIN = CALC_CHAMP(reuse=AM_LIN,
+                    CONTRAINTE=('SIEF_NOEU', ),
+                    CRITERES=('SIEQ_NOEU', ),
+                    DEFORMATION=('EPSI_NOEU', ),
+                    FORCE=('FORC_NODA', ),
+                    RESULTAT=AM_LIN,
+                    VARI_INTERNE=('VARI_NOEU', ))
+
+STRAIN = POST_RELEVE_T(ACTION=_F(GROUP_NO=('NODO_sup', 'NODE1', 'NODE2'),
+                                 INTITULE='STRAIN',
+                                 NOM_CHAM='EPSI_NOEU',
+                                 NOM_CMP=('EPZZ', ),
+                                 OPERATION=('EXTRACTION', ),
+                                 RESULTAT=AM_LIN))
+
+STRESS = POST_RELEVE_T(ACTION=_F(GROUP_NO=('NODO_sup', 'NODE1', 'NODE2'),
+                                 INTITULE='STRESS',
+                                 NOM_CHAM='SIEF_NOEU',
+                                 NOM_CMP=('SIZZ', ),
+                                 OPERATION=('EXTRACTION', ),
+                                 RESULTAT=AM_LIN))
+
+VARI = POST_RELEVE_T(ACTION=_F(GROUP_NO=('NODO_sup', 'NODE1', 'NODE2'),
+                               INTITULE='VARIABLES',
+                               NOM_CHAM='VARI_NOEU',
+                               NOM_CMP=('V13', 'V14'),
+                               OPERATION=('EXTRACTION', ),
+                               RESULTAT=AM_LIN))
+
+#IMPR_RESU(RESU=_F(LIST_INST=L2_INST,
+#                  RESULTAT=AM_LIN),
+#          UNITE=80)
+
+IMPR_TABLE(#FILTRE=_F(NOM_PARA='INST',
+                     #VALE=(0.0, 10.0, 20, 30,40,50,60,70,76)),                     
+           FORMAT='TABLEAU',
+           TABLE=STRAIN,
+           UNITE=4)
+
+IMPR_TABLE(#FILTRE=_F(NOM_PARA='INST',
+                     #VALE=(0.0, 10.0, 20, 30,40,50,60,70,76)), 
+           FORMAT='TABLEAU',
+           TABLE=STRESS,
+           UNITE=3)
+
+
+FIN()
